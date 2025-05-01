@@ -1,0 +1,26 @@
+{
+  "frame": {
+    "version": "1",
+    "name": "Coin Curate",
+    "homeUrl": "https://coin-curate.xyz",
+    "iconUrl": "https://res.cloudinary.com/dyk5s8gbw/image/upload/v1746142963/sryaxse2cojomtj7wxyj.png",
+    "splashImageUrl": "https://res.cloudinary.com/dyk5s8gbw/image/upload/v1746142963/sryaxse2cojomtj7wxyj.png",
+    "splashBackgroundColor": "#000000",
+    "buttonTitle": "Launch Coin Curate",
+    "imageUrl": "https://res.cloudinary.com/dyk5s8gbw/image/upload/v1746142963/sryaxse2cojomtj7wxyj.png",
+    "subtitle": "Discover content coins by community",
+    "description": "Find the best content coins based on community metrics, engagement, and growth rates. Analyze community health scores and track coin performance.",
+    "primaryCategory": "finance",
+    "tags": [
+      "cryptocurrency", 
+      "content", 
+      "community", 
+      "analytics", 
+      "coins"
+    ],
+    "heroImageUrl": "https://res.cloudinary.com/dyk5s8gbw/image/upload/v1746142963/sryaxse2cojomtj7wxyj.png",
+    "tagline": "Community-driven coin discovery",
+    "ogTitle": "Coin Curate",
+    "ogDescription": "Discover the best content coins by community metrics"
+  }
+} 

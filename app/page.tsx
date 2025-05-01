@@ -21,6 +21,7 @@ import {
 import { useEffect, useState, useCallback } from "react";
 import { useAccount } from 'wagmi';
 import { CommunityFinder } from './components/CommunityFinder';
+import SplashScreen from './components/SplashScreen';
 
 // Simple Button component
 interface ButtonProps {
@@ -140,6 +141,7 @@ export default function CoinCurate() {
 
   return (
     <div className="flex flex-col min-h-screen font-sans text-[var(--app-foreground)] mini-app-theme">
+      <SplashScreen />
       <div className="w-full max-w-md mx-auto px-4 py-3">
         <header className="flex justify-between items-center mb-6 h-11">
           <div>
