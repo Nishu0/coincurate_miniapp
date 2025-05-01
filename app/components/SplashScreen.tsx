@@ -7,24 +7,53 @@ export default function SplashScreen() {
   const [isVisible, setIsVisible] = useState(true);
 
   useEffect(() => {
+    // Function to handle initializing the frame
     const initializeFrame = async () => {
-      // Wait a bit to show the splash screen to users
-      await new Promise(resolve => setTimeout(resolve, 1500));
-      
-      // Call the ready function to hide the splash screen
-      await setFrameReady();
-      
-      // Hide our splash screen component
-      setIsVisible(false);
+      try {
+        // Wait for all critical UI elements to load
+        // This ensures the UI is ready before showing it to users
+        await new Promise(resolve => {
+          // Check if document is loaded, and if not wait for it
+          if (document.readyState === 'complete') {
+            resolve(true);
+          } else {
+            window.addEventListener('load', () => resolve(true), { once: true });
+          }
+        });
+        
+        // Add a small delay to ensure all React components are rendered
+        await new Promise(resolve => setTimeout(resolve, 500));
+        
+        // Call frame ready to tell Farcaster the UI is ready
+        const readyResult = await setFrameReady();
+        console.log('Frame ready result:', readyResult);
+        
+        // Hide our splash screen
+        setIsVisible(false);
+      } catch (error) {
+        console.error('Error initializing frame:', error);
+        // Still hide splash screen after a timeout in case of errors
+        setTimeout(() => setIsVisible(false), 2000);
+      }
     };
 
-    // Only initialize if we're in a frame context, otherwise hide after a shorter delay
+    // Initialize based on context
     if (isInFrameContext()) {
+      console.log('Running in Farcaster frame context');
       initializeFrame();
     } else {
-      // In non-frame context, show splash briefly for demo purposes
-      setTimeout(() => setIsVisible(false), 1000);
+      console.log('Running in browser context');
+      // In non-frame context (regular browser), still initialize but with shorter timeout
+      initializeFrame();
     }
+    
+    // Fallback - hide splash after max timeout regardless of what happens
+    const fallbackTimeout = setTimeout(() => {
+      console.log('Fallback timeout reached, hiding splash screen');
+      setIsVisible(false);
+    }, 5000); // 5 second max timeout
+    
+    return () => clearTimeout(fallbackTimeout);
   }, []);
 
   if (!isVisible) {
