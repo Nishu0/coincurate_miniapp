@@ -19,25 +19,102 @@ import {
   WalletDropdownDisconnect,
 } from "@coinbase/onchainkit/wallet";
 import { useEffect, useState, useCallback } from "react";
-import { Button, Icon } from "./components/DemoComponents";
-import { Feed, FeedSortOption } from "./components/Feed";
-import { Leaderboard, LeaderboardType } from "./components/Leaderboard";
+import { useAccount } from 'wagmi';
+import { CommunityFinder } from './components/CommunityFinder';
+
+// Simple Button component
+interface ButtonProps {
+  variant?: 'primary' | 'ghost';
+  size?: 'sm' | 'md' | 'lg';
+  onClick?: () => void;
+  className?: string;
+  children: React.ReactNode;
+  icon?: React.ReactNode;
+}
+
+function Button({ 
+  variant = 'primary', 
+  size = 'sm', 
+  onClick, 
+  className = '',
+  children,
+  icon
+}: ButtonProps) {
+  const baseClasses = 'font-medium transition-colors duration-200';
+  const variantClasses = {
+    primary: 'bg-[var(--app-accent)] hover:bg-[var(--app-accent-dark)] text-white',
+    ghost: 'bg-transparent hover:bg-[var(--app-gray)] text-[var(--app-foreground)]'
+  };
+  const sizeClasses = {
+    sm: 'px-3 py-1 text-xs',
+    md: 'px-4 py-2 text-sm',
+    lg: 'px-5 py-2.5 text-base'
+  };
+
+  return (
+    <button
+      onClick={onClick}
+      className={`${baseClasses} ${variantClasses[variant]} ${sizeClasses[size]} ${className}`}
+    >
+      <div className="flex items-center">
+        {icon}
+        {children}
+      </div>
+    </button>
+  );
+}
+
+// Simple Icon component
+interface IconProps {
+  name: string;
+  size?: 'sm' | 'md' | 'lg';
+  className?: string;
+}
+
+function Icon({ name, size = 'md', className = '' }: IconProps) {
+  const sizeValues = {
+    sm: 16,
+    md: 20,
+    lg: 24
+  };
+  
+  const getIconPath = (iconName: string) => {
+    switch (iconName) {
+      case 'plus':
+        return (
+          <svg width={sizeValues[size]} height={sizeValues[size]} viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" className={className}>
+            <path d="M12 5V19" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+            <path d="M5 12H19" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+          </svg>
+        );
+      case 'check':
+        return (
+          <svg width={sizeValues[size]} height={sizeValues[size]} viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" className={className}>
+            <path d="M20 6L9 17L4 12" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+          </svg>
+        );
+      default:
+        return null;
+    }
+  };
+
+  return getIconPath(name);
+}
 
 export default function CoinCurate() {
   const { setFrameReady, isFrameReady, context } = useMiniKit();
   const [frameAdded, setFrameAdded] = useState(false);
-  const [activeTab, setActiveTab] = useState<"feed" | "leaderboard">("feed");
-  const [feedSort, setFeedSort] = useState<FeedSortOption>("recent");
-  const [leaderboardType, setLeaderboardType] = useState<LeaderboardType>("content");
-
+  const { isConnected } = useAccount();
+  
   const addFrame = useAddFrame();
   const openUrl = useOpenUrl();
 
   useEffect(() => {
-    if (!isFrameReady) {
+    if (isFrameReady && !frameAdded) {
       setFrameReady();
+      setFrameAdded(true);
     }
-  }, [setFrameReady, isFrameReady]);
+  }, [isFrameReady, frameAdded, setFrameReady]);
 
   const handleAddFrame = useCallback(async () => {
     const frameAdded = await addFrame();
@@ -49,33 +126,57 @@ export default function CoinCurate() {
       variant="ghost"
       size="sm"
       onClick={handleAddFrame}
-      className="text-[var(--app-accent)] p-4"
+      className="text-[var(--app-accent)] p-3 rounded-full border border-[var(--app-gray)] hover:border-[var(--app-accent)] transition-colors"
       icon={<Icon name="plus" size="sm" />}
     >
       Save Frame
     </Button>
   ) : frameAdded ? (
-    <div className="flex items-center space-x-1 text-sm font-medium text-[#0052FF] animate-fade-out">
+    <div className="flex items-center space-x-1 text-sm font-medium text-[#0052FF] animate-fade-out px-3 py-2">
       <Icon name="check" size="sm" className="text-[#0052FF]" />
       <span>Saved</span>
     </div>
   ) : null;
 
   return (
-    <div className="flex flex-col min-h-screen font-sans text-[var(--app-foreground)] mini-app-theme from-[var(--app-background)] to-[var(--app-gray)]">
+    <div className="flex flex-col min-h-screen font-sans text-[var(--app-foreground)] mini-app-theme">
       <div className="w-full max-w-md mx-auto px-4 py-3">
-        <header className="flex justify-between items-center mb-3 h-11">
+        <header className="flex justify-between items-center mb-6 h-11">
           <div>
             <div className="flex items-center space-x-2">
               <Wallet className="z-10">
                 <ConnectWallet>
-                  <Name className="text-inherit" />
+                  <Button 
+                    variant={isConnected ? "ghost" : "primary"} 
+                    size="sm" 
+                    className={`rounded-full hover:opacity-90 transition-opacity ${isConnected ? 'text-green-500 border border-green-500' : ''}`}
+                  >
+                    <span className="flex items-center">
+                      {isConnected ? (
+                        <>
+                          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" className="mr-1.5">
+                            <path d="M20 6L9 17L4 12" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                          </svg>
+                          Connected
+                        </>
+                      ) : (
+                        <>
+                          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" className="mr-1.5">
+                            <rect x="3" y="5" width="18" height="14" rx="2" stroke="currentColor" strokeWidth="2"/>
+                            <path d="M17 9V9.01" stroke="currentColor" strokeWidth="2" strokeLinecap="round"/>
+                            <path d="M8 13H11" stroke="currentColor" strokeWidth="2" strokeLinecap="round"/>
+                          </svg>
+                          Connect
+                        </>
+                      )}
+                    </span>
+                  </Button>
                 </ConnectWallet>
                 <WalletDropdown>
                   <Identity className="px-4 pt-3 pb-2" hasCopyAddressOnClick>
-                    <Avatar />
-                    <Name />
-                    <Address />
+                    <Avatar className="border-2 border-[var(--app-gray)]" />
+                    <Name className="font-semibold" />
+                    <Address className="text-sm" />
                     <EthBalance />
                   </Identity>
                   <WalletDropdownDisconnect />
@@ -87,95 +188,41 @@ export default function CoinCurate() {
         </header>
 
         <main className="flex-1">
-          <div className="mb-4">
-            <h1 className="text-2xl font-bold text-center mb-1">Coin Curate</h1>
-            <p className="text-center text-[var(--app-foreground-muted)] text-sm">
-              Boost content with your content coins
+          <div className="mb-6">
+            <h1 className="text-2xl font-bold text-center mb-2 flex items-center justify-center">
+              <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" className="mr-2 text-[var(--app-accent)]">
+                <path d="M12 22C17.5228 22 22 17.5228 22 12C22 6.47715 17.5228 2 12 2C6.47715 2 2 6.47715 2 12C2 17.5228 6.47715 22 12 22Z" stroke="currentColor" strokeWidth="2" fill="currentColor" fillOpacity="0.2"/>
+                <path d="M12 17V12" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                <path d="M12 7H12.01" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+              </svg>
+              Coin Curate
+            </h1>
+            <p className="text-center text-[var(--app-foreground-muted)] text-sm max-w-xs mx-auto">
+              Discover the best content coins by community health
             </p>
           </div>
 
-          <div className="flex justify-center mb-4">
-            <div className="flex space-x-2 p-1 bg-[var(--app-gray)] rounded-lg">
-              <Button
-                variant={activeTab === "feed" ? "primary" : "ghost"}
-                size="sm"
-                onClick={() => setActiveTab("feed")}
-                className={activeTab === "feed" ? "bg-[var(--app-background)]" : ""}
-              >
-                Feed
-              </Button>
-              <Button
-                variant={activeTab === "leaderboard" ? "primary" : "ghost"}
-                size="sm"
-                onClick={() => setActiveTab("leaderboard")}
-                className={activeTab === "leaderboard" ? "bg-[var(--app-background)]" : ""}
-              >
-                Leaderboard
-              </Button>
-            </div>
+          {/* Main content - Community Finder */}
+          <div>
+            <CommunityFinder />
           </div>
-
-          {activeTab === "feed" && (
-            <>
-              <div className="flex justify-end mb-3">
-                <div className="flex space-x-2 p-1 bg-[var(--app-gray)] rounded-lg">
-                  <Button
-                    variant={feedSort === "recent" ? "primary" : "ghost"}
-                    size="sm"
-                    onClick={() => setFeedSort("recent")}
-                    className={feedSort === "recent" ? "bg-[var(--app-background)]" : ""}
-                  >
-                    Recent
-                  </Button>
-                  <Button
-                    variant={feedSort === "popular" ? "primary" : "ghost"}
-                    size="sm"
-                    onClick={() => setFeedSort("popular")}
-                    className={feedSort === "popular" ? "bg-[var(--app-background)]" : ""}
-                  >
-                    Popular
-                  </Button>
-                </div>
-              </div>
-              <Feed sortBy={feedSort} />
-            </>
-          )}
-
-          {activeTab === "leaderboard" && (
-            <>
-              <div className="flex justify-center mb-3">
-                <div className="flex space-x-2 p-1 bg-[var(--app-gray)] rounded-lg">
-                  <Button
-                    variant={leaderboardType === "content" ? "primary" : "ghost"}
-                    size="sm"
-                    onClick={() => setLeaderboardType("content")}
-                    className={leaderboardType === "content" ? "bg-[var(--app-background)]" : ""}
-                  >
-                    Top Content
-                  </Button>
-                  <Button
-                    variant={leaderboardType === "curators" ? "primary" : "ghost"}
-                    size="sm"
-                    onClick={() => setLeaderboardType("curators")}
-                    className={leaderboardType === "curators" ? "bg-[var(--app-background)]" : ""}
-                  >
-                    Top Curators
-                  </Button>
-                </div>
-              </div>
-              <Leaderboard type={leaderboardType} />
-            </>
-          )}
         </main>
 
-        <footer className="mt-6 pt-4 flex justify-center">
+        <footer className="mt-8 pt-4 flex justify-center">
           <Button
             variant="ghost"
             size="sm"
-            className="text-[var(--ock-text-foreground-muted)] text-xs"
+            className="text-[var(--app-foreground-muted)] text-xs hover:text-[var(--app-foreground)] transition-colors"
             onClick={() => openUrl("https://base.org/builders/minikit")}
           >
-            Built on Base with MiniKit
+            <span className="flex items-center">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" className="mr-1.5">
+                <path d="M12 22C17.5228 22 22 17.5228 22 12C22 6.47715 17.5228 2 12 2C6.47715 2 2 6.47715 2 12C2 17.5228 6.47715 22 12 22Z" stroke="currentColor" strokeWidth="2" fill="currentColor" fillOpacity="0.1"/>
+                <path d="M7.5 12H16.5" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                <path d="M12 7.5V16.5" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+              </svg>
+              Built on Base with MiniKit
+            </span>
           </Button>
         </footer>
       </div>

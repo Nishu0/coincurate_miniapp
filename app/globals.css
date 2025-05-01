@@ -5,12 +5,30 @@
 :root {
   --background: #ffffff;
   --foreground: #111111;
+  
+  /* App specific variables */
+  --app-background: #ffffff;
+  --app-foreground: #111111;
+  --app-foreground-muted: #71717a;
+  --app-gray: #e5e7eb;
+  --app-gray-hover: #f3f4f6;
+  --app-accent: #0052FF;
+  --app-accent-dark: #0039B3;
 }
 
 @media (prefers-color-scheme: dark) {
   :root {
     --background: #111111;
     --foreground: #ffffff;
+    
+    /* App specific variables in dark mode */
+    --app-background: #111111;
+    --app-foreground: #ffffff;
+    --app-foreground-muted: #a1a1aa;
+    --app-gray: #27272a;
+    --app-gray-hover: #3f3f46;
+    --app-accent: #0052FF;
+    --app-accent-dark: #0039B3;
   }
 }
 
@@ -22,4 +40,24 @@ body {
   font-weight: 400;
   font-style: normal;
   font-size: 80%;
+}
+
+/* Custom theme for MiniKit */
+.mini-app-theme {
+  --ock-background: var(--app-background);
+  --ock-foreground: var(--app-foreground);
+  --ock-primary: var(--app-accent);
+  --ock-primary-foreground: white;
+  --ock-border: var(--app-gray);
+}
+
+/* Animations */
+@keyframes fade-out {
+  from { opacity: 1; }
+  to { opacity: 0; }
+}
+
+.animate-fade-out {
+  animation: fade-out 2s ease-in-out forwards;
+  animation-delay: 2s;
 }
