@@ -20,7 +20,9 @@ import {
 } from "@coinbase/onchainkit/wallet";
 import { useEffect, useState, useCallback } from "react";
 import { useAccount } from 'wagmi';
-import { CommunityFinder } from './components/CommunityFinder';
+import { TabGroup } from './components/TabGroup';
+import { GameCreation } from './components/GameCreation';
+import { GameLobby } from './components/GameLobby';
 import SplashScreen from './components/SplashScreen';
 
 // Simple Button component
@@ -106,6 +108,7 @@ export default function CoinCurate() {
   const { setFrameReady, isFrameReady, context } = useMiniKit();
   const [frameAdded, setFrameAdded] = useState(false);
   const { isConnected } = useAccount();
+  const [activeTab, setActiveTab] = useState<'games' | 'create' | 'coins'>('games');
   
   const addFrame = useAddFrame();
   const openUrl = useOpenUrl();
@@ -197,16 +200,30 @@ export default function CoinCurate() {
                 <path d="M12 17V12" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
                 <path d="M12 7H12.01" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
               </svg>
-              Coin Curate
+              Token Games
             </h1>
             <p className="text-center text-[var(--app-foreground-muted)] text-sm max-w-xs mx-auto">
-              Discover the best content coins by community health
+              Play games with token stakes and earn rewards
             </p>
           </div>
 
-          {/* Main content - Community Finder */}
+          {/* Tab navigation */}
+          <div className="mb-6">
+            <TabGroup
+              tabs={[
+                { id: 'games', label: 'Game Lobby' },
+                { id: 'create', label: 'Create Game' },
+                { id: 'coins', label: 'Discover Coins' },
+              ]}
+              activeTab={activeTab}
+              onChange={(tab) => setActiveTab(tab as 'games' | 'create' | 'coins')}
+            />
+          </div>
+
+          {/* Main content based on active tab */}
           <div>
-            <CommunityFinder />
+            {activeTab === 'games' && <GameLobby />}
+            {activeTab === 'create' && <GameCreation />}
           </div>
         </main>
 
