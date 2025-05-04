@@ -6,7 +6,7 @@ This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-oncha
 - [OnchainKit](https://www.base.org/builders/onchainkit)
 - [Tailwind CSS](https://tailwindcss.com)
 - [Next.js](https://nextjs.org/docs)
-
+ 
 ## Getting Started
 
 1. Install dependencies:
